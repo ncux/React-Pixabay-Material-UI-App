@@ -1,5 +1,7 @@
 import React, { Component } from 'react';
 import axios from 'axios';
+import ImageResults from '../image-results/image-results';
+
 import TextField from 'material-ui/TextField';
 import SelectField from 'material-ui/SelectField';
 import MenuItem from 'material-ui/MenuItem';
@@ -18,23 +20,26 @@ export default class Search extends Component {
     };
 
     onTextInput = async e => {
-        try {
-            this.setState({ [e.target.name]: e.target.value });
-            let res = await axios.get(`${ API_URL }&q=${ this.state.searchTerm }&image_type=photo&per_page=${ this.state.amount }`);
-            // console.log(res.data);
-            this.setState({ images: res.data.hits });
-        } catch (e) {
-            console.log(e);
+        const val = e.target.value;
+        if(val === '') {
+            this.setState({ images: [] });
+        } else {
+            try {
+                this.setState({ [e.target.name]: val });
+                let res = await axios.get(`${ API_URL }&q=${ this.state.searchTerm }&image_type=photo&per_page=${ this.state.amount }`);
+                // console.log(res.data);
+                this.setState({ images: res.data.hits });
+            } catch (e) {
+                console.log(e);
+            }
         }
     };
 
-    onAmountChange = e => {
-        this.setState({ [e.target.name]: e.target.value });
-    };
+    onAmountChange = (e, index, value) => this.setState({ amount: value });
 
     render() {
 
-        console.log(this.state.images);
+        // console.log(this.state.images);
 
         return (
             <div>
@@ -59,6 +64,7 @@ export default class Search extends Component {
                     <MenuItem value={50} primaryText="50" />
                 </SelectField>
                 <br />
+                { this.state.images.length > 0 ? (<ImageResults images={ this.state.images } />) : null }
 
             </div>
         )
